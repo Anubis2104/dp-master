@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - DP Master{% endblock %}
+
+{% block content %}
+{# ============ PHẦN 1: GIỚI THIỆU KỸ THUẬT QUY HOẠCH ĐỘNG ============ #}
+<div class="card">
+    <div class="mb-4">
+        <div class="section-badge">
+            <span class="section-number">1</span>
+            <span class="section-label">Giới thiệu</span>
+        </div>
+        <h2>{{ lesson.title }}</h2>
+        <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-top: 0.5rem;">{{ lesson.theory }}</p>
+    </div>
+</div>
+
+{# ============ PHẦN 2: CODE MẪU ============ #}
+{% if lesson.python_code %}
+<div class="card">
+    <div class="section-badge">
+        <span class="section-number">2</span>
+        <span class="section-label">Code mẫu</span>
+    </div>
+    <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text-main);">Code mẫu tham khảo:</h3>
+    <pre style="width: 100%; max-height: 400px; font-family: 'Consolas', monospace; font-size: 14px; padding: 1rem; background: #1e293b; color: #f8fafc; border: 1px solid #334155; border-left: 4px solid var(--primary); border-radius: 8px; overflow: auto; line-height: 1.6;"><code>{{ lesson.python_code }}</code></pre>
+</div>
+{% endif %}
+
+{# ============ PHẦN 3: THỬ NGHIỆM THUẬT TOÁN ============ #}
+<div class="card">
+    <div class="section-badge">
+        <span class="section-number">3</span>
+        <span class="section-label">Thử nghiệm</span>
+    </div>
+    <h3 style="margin-bottom: 1.5rem;">Thử nghiệm Thuật toán</h3>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if lesson.slug == 'doi-tien' %}
+        <div class="form-group">
+            <label>Các mệnh giá (cách bằng dấu phẩy):</label>
+            <input type="text" name="coins" placeholder="VD: 10,20,50" required>
+        </div>
+        <div class="form-group">
+            <label>Số tiền cần đổi:</label>
+            <input type="number" name="amount" placeholder="VD: 47" required>
+        </div>
+
+        {% elif lesson.slug == 'day-con-tang' %}
+        <div class="form-group">
+            <label>Nhập dãy số (cách bằng dấu phẩy):</label>
+            <input type="text" name="arr" placeholder="VD: 10, 22, 9, 33, 21, 50, 41, 60" required>
+        </div>
+
+        {% elif lesson.slug == 'nhan-ma-tran' %}
+        <div class="form-group">
+            <label>Dãy kích thước ma trận (cách bằng dấu phẩy):</label>
+            <input type="text" name="p" placeholder="VD: 10, 20, 30, 5" required>
+        </div>
+
+        {% elif lesson.slug == 'tim-duong-ngan-nhat' %}
+        <div class="form-group">
+            <label>Số lượng đỉnh (n):</label>
+            <input type="number" name="n" placeholder="VD: 4" required>
+        </div>
+        <div class="form-group">
+            <label>Nút bắt đầu:</label>
+            <input type="number" name="start_node" placeholder="VD: 0" required>
+        </div>
+        <div class="form-group">
+            <label>Các cạnh (mỗi dòng 1 cạnh: u v w):</label>
+            <textarea name="edges" rows="4" placeholder="0 1 5&#10;1 2 3" required></textarea>
+        </div>
+
+        {% elif lesson.slug in ['tim-kiem-rong', 'tim-kiem-sau'] %}
+        <div class="form-group">
+            <label>Cây (JSON format):</label>
+            <textarea name="tree_json" rows="4" placeholder='{"value": 1, "left": {"value": 2}, "right": {"value": 3}}'
+                required></textarea>
+        </div>
+
+        {% elif lesson.slug == 'tinh-so-to-hop' %}
+        <div class="form-group">
+            <label>N (Tổng số phần tử):</label>
+            <input type="number" name="n" placeholder="VD: 5" required>
+        </div>
+        <div class="form-group">
+            <label>K (Số phần tử được chọn):</label>
+            <input type="number" name="k" placeholder="VD: 2" required>
+        </div>
+
+        {% elif lesson.slug == 'xau-con-chung' %}
+        <div class="form-group">
+            <label>Xâu thứ nhất:</label>
+            <input type="text" name="s1" placeholder="VD: ABCBDAB" required>
+        </div>
+        <div class="form-group">
+            <label>Xâu thứ hai:</label>
+            <input type="text" name="s2" placeholder="VD: BDCABA" required>
+        </div>
+
+        {% elif lesson.slug == 'xep-ba-lo' %}
+        <div class="form-group">
+            <label>Trọng lượng tối đa của Ba lô:</label>
+            <input type="number" name="w_max" placeholder="VD: 50" required>
+        </div>
+        <div class="form-group">
+            <label>Danh sách đồ vật (mỗi dòng: trọng_lượng giá_trị tên):</label>
+            <textarea name="items" rows="4" placeholder="10 60 Vật 1&#10;20 100 Vật 2&#10;30 120 Vật 3"
+                required></textarea>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn">Chạy Thuật Toán</button>
+    </form>
+
+    {% if result %}
+    <div class="mt-4" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main);">Output của thuật toán:</h3>
+        {% if result.get('success') %}
+        <div class="result-box">
+            <h4 style="color: var(--success); margin-bottom: 0.5rem; font-size: 1.1rem;">Khớp thuật toán thành công!
+            </h4>
+            <pre
+                style="background: transparent !important; color: inherit !important; padding: 0; font-size: 1rem; border: none; white-space: pre-wrap; word-wrap: break-word;">{{ result_json }}</pre>
+        </div>
+        {% else %}
+        <div class="error-box">
+            <h4 style="color: var(--error); margin-bottom: 0.5rem; font-size: 1.1rem;">Có lỗi xảy ra</h4>
+            <p>{{ result.get('message') }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{# ============ PHẦN 4: KHU VỰC LUYỆN TẬP CODE ============ #}
+{% if lesson.python_code %}
+<div class="card">
+    <div class="section-badge">
+        <span class="section-number">4</span>
+        <span class="section-label">Luyện tập</span>
+    </div>
+    <div class="mb-4 position-relative">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.1rem; margin: 0; font-weight: bold; color: #111;">Khu vực luyện tập code của bạn:
+            </h3>
+            <div>
+                <button type="button" onclick="resetCode()" class="btn btn-sm"
+                    style="margin-right: 0.5rem; padding: 0.4rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; background-color: #0d6efd; color: white;">Khôi
+                    phục</button>
+                <button type="button" onclick="executeUserCode()" class="btn btn-sm"
+                    style="padding: 0.4rem 1rem; font-size: 0.9rem; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">Chạy
+                    Code</button>
+            </div>
+        </div>
+
+        <div
+            style="border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <textarea id="userCodeEditor" style="display: none;">{{ lesson.python_code }}</textarea>
+        </div>
+        <!-- Hidden div to store original code for reset -->
+        <textarea id="originalCode" style="display: none;">{{ lesson.python_code }}</textarea>
+
+        <div id="terminalContainer" class="mt-3"
+            style="display: none; border-radius: 6px; overflow: hidden; font-family: monospace; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div
+                style="background-color: #2d2d2d; color: #fff; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a;">
+                <span style="font-weight: bold;">Terminal Output</span>
+                <span onclick="closeTerminal()"
+                    style="cursor: pointer; color: #ff5f56; font-weight: bold; font-size: 1.2rem; line-height: 1;">&times;</span>
+            </div>
+            <pre id="codeOutput"
+                style="background-color: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 0; min-height: 80px; font-size: 0.95rem; white-space: pre-wrap; word-wrap: break-word;"></pre>
+        </div>
+    </div>
+
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
+    <style>
+        .CodeMirror {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            height: auto;
+            min-height: 350px;
+        }
+    </style>
+
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("userCodeEditor"), {
+            mode: "python",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            matchBrackets: true,
+            viewportMargin: Infinity
+        });
+
+        function resetCode() {
+            var original = document.getElementById("originalCode").value;
+            editor.setValue(original);
+            closeTerminal();
+        }
+
+        function closeTerminal() {
+            document.getElementById("terminalContainer").style.display = "none";
+        }
+
+        function executeUserCode() {
+            var code = editor.getValue();
+            var outputEl = document.getElementById("codeOutput");
+            var terminalContainer = document.getElementById("terminalContainer");
+
+            terminalContainer.style.display = "block";
+            outputEl.innerText = "⏳ Đang chạy code...";
+
+            fetch('/run_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ code: code })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.output && data.output.trim() !== "") {
+                            outputEl.innerText = data.output;
+                        } else {
+                            outputEl.innerText = "(Chương trình thực thi thành công nhưng không có output)";
+                        }
+                    } else {
+                        outputEl.innerText = "❌ " + data.output;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    outputEl.innerText = "❌ Lỗi khi gửi yêu cầu chạy code.";
+                });
+        }
+    </script>
+</div>
+{% endif %}
+{% endblock %}

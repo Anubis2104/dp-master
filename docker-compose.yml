@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      # Mount thư mục instance để lưu trữ database SQLite không bị mất khi restart container
+      - ./instance:/app/instance
+      # Mount Docker socket để container có thể chạy lệnh `docker run` cho tính năng sandbox code
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # BẮT BUỘC: Đặt secret key mạnh trong file .env
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URI=${DATABASE_URI:-sqlite:////app/instance/dp_master.db}
+      # Tắt debug trong production (chỉ bật FLASK_DEBUG=1 khi develop)
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PORT=5000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

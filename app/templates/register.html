@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Đăng ký - DP Master{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 4rem auto;">
+    <div class="text-center mb-4">
+        <h2>Đăng ký tài khoản</h2>
+        <p style="color: var(--text-muted);">Tham gia DP Master ngay hôm nay</p>
+    </div>
+    
+    <form method="POST" action="/register">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if error %}
+        <div style="color: red; text-align: center; margin-bottom: 1rem;">{{ error }}</div>
+        {% endif %}
+        <div class="form-group">
+            <label>Tên đăng nhập</label>
+            <input type="text" name="username" placeholder="Chọn username" required>
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" name="password" placeholder="Tạo mật khẩu" required>
+        </div>
+        
+        <button type="submit" class="btn btn-block">Đăng ký</button>
+        
+        <div class="text-center mt-4">
+            <p style="font-size: 0.9rem;">Đã có tài khoản? <a href="/login" style="color: var(--primary); text-decoration: none;">Đăng nhập</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %}

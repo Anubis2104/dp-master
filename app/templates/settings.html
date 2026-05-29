@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Cài đặt tài khoản - DP Master{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <div class="mb-4" style="padding-top: 0.5rem;">
+        <h2 style="font-size: 1.75rem; margin-bottom: 0.4rem;">⚙️ Cài đặt tài khoản</h2>
+        <p style="color: var(--text-muted);">Quản lý mật khẩu, bảo mật và tài khoản của bạn.</p>
+    </div>
+
+    <!-- ============ ĐỔI MẬT KHẨU ============ -->
+    <div class="card settings-card">
+        <div class="settings-card-header">
+            <div class="settings-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div>
+                <h3 style="color: var(--text-main); font-size: 1.15rem;">Đổi mật khẩu</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem;">Cập nhật mật khẩu đăng nhập của bạn</p>
+            </div>
+        </div>
+
+        {% if pw_error %}
+        <div class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            {{ pw_error }}
+        </div>
+        {% endif %}
+        {% if pw_success %}
+        <div class="alert alert-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            {{ pw_success }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/change-password" style="margin-top: 1.25rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Mật khẩu hiện tại</label>
+                <input type="password" name="old_password" placeholder="Nhập mật khẩu hiện tại" required>
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" name="new_password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>Xác nhận mật khẩu mới</label>
+                <input type="password" name="confirm_password" placeholder="Nhập lại mật khẩu mới" required>
+            </div>
+            <button type="submit" class="btn">Đổi mật khẩu</button>
+        </form>
+    </div>
+
+    <!-- ============ XÁC THỰC 2 BƯỚC ============ -->
+    <div class="card settings-card">
+        <div class="settings-card-header">
+            <div class="settings-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div>
+                <h3 style="color: var(--text-main); font-size: 1.15rem;">Xác thực 2 bước (2FA)</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem;">Bảo vệ tài khoản với mã xác thực từ ứng dụng (Google Authenticator, Authy...)</p>
+            </div>
+        </div>
+
+        {% if tfa_success %}
+        <div class="alert alert-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            {{ tfa_success }}
+        </div>
+        {% endif %}
+        {% if tfa_error %}
+        <div class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            {{ tfa_error }}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 1.25rem;">
+            {% if current_user.totp_enabled %}
+            <div class="tfa-status tfa-enabled">
+                <div class="tfa-status-icon">✅</div>
+                <div>
+                    <strong>Đã bật</strong>
+                    <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);">Xác thực 2 bước đang hoạt động. Mỗi lần đăng nhập bạn sẽ cần nhập mã OTP.</p>
+                </div>
+            </div>
+            <form method="POST" action="/disable-2fa" style="margin-top: 1rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label>Nhập mật khẩu để tắt 2FA</label>
+                    <input type="password" name="password" placeholder="Mật khẩu hiện tại" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Tắt xác thực 2 bước</button>
+            </form>
+            {% else %}
+            <div class="tfa-status tfa-disabled">
+                <div class="tfa-status-icon">🔓</div>
+                <div>
+                    <strong>Chưa bật</strong>
+                    <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);">Tài khoản chưa được bảo vệ bởi xác thực 2 bước.</p>
+                </div>
+            </div>
+            <a href="/setup-2fa" class="btn" style="margin-top: 1rem; display: inline-block;">Thiết lập 2FA</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ============ XÓA TÀI KHOẢN ============ -->
+    <div class="card settings-card settings-card-danger">
+        <div class="settings-card-header">
+            <div class="settings-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </div>
+            <div>
+                <h3 style="color: var(--error); font-size: 1.15rem;">Xóa tài khoản</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem;">Hành động này không thể hoàn tác. Dữ liệu sẽ bị ẩn danh hóa.</p>
+            </div>
+        </div>
+
+        {% if del_error %}
+        <div class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            {{ del_error }}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 1.25rem; padding: 1rem; background: #fef2f2; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.15);">
+            <p style="font-size: 0.9rem; color: #991b1b; margin-bottom: 0.5rem;">
+                <strong>⚠️ Lưu ý quan trọng:</strong>
+            </p>
+            <ul style="font-size: 0.88rem; color: #991b1b; padding-left: 1.2rem; margin: 0;">
+                <li>Username và mật khẩu sẽ được thay thế bằng chuỗi ngẫu nhiên</li>
+                <li>Bạn sẽ không thể đăng nhập lại sau khi xóa</li>
+                <li>Tiến độ học tập sẽ được giữ lại dưới dạng ẩn danh</li>
+            </ul>
+        </div>
+
+        <form method="POST" action="/delete-account" style="margin-top: 1rem;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản? Hành động này KHÔNG THỂ hoàn tác!');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Nhập mật khẩu để xác nhận xóa</label>
+                <input type="password" name="password" placeholder="Mật khẩu hiện tại" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Xóa tài khoản vĩnh viễn</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
