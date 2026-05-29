@@ -23,7 +23,7 @@ RUN mkdir -p /app/instance && chown -R appuser:appgroup /app/instance
 # Chuyển sang user không có quyền root
 USER appuser
 
-EXPOSE 5000
+EXPOSE 8080
 
-# Dùng shell form để đọc được biến $PORT từ Railway
-CMD gunicorn --bind "0.0.0.0:${PORT:-5000}" --workers 2 --timeout 120 --log-level info run:app
+# Dùng shell form để đọc được biến $PORT từ Railway (mặc định Railway dùng 8080)
+CMD gunicorn --bind "0.0.0.0:${PORT:-8080}" --workers 2 --timeout 120 --log-level info run:app
