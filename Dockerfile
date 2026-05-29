@@ -25,5 +25,5 @@ USER appuser
 
 EXPOSE 5000
 
-# Khởi chạy với Gunicorn (db.create_all() sẽ tự chạy khi Flask app được import)
-CMD ["gunicorn", "--config", "gunicorn.conf.py", "run:app"]
+# Dùng shell form để đọc được biến $PORT từ Railway
+CMD gunicorn --bind "0.0.0.0:${PORT:-5000}" --workers 2 --timeout 120 --log-level info run:app
