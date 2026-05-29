@@ -64,11 +64,11 @@ def load_user(user_id):
 
 init_routes(app)
 
-if __name__ == '__main__':
-    with app.app_context():
-        # Tạo tất cả bảng nếu chưa có (dựa trên models.py)
-        db.create_all()
+# Tạo tất cả bảng khi app khởi động (chạy cả khi dùng Gunicorn lẫn python run.py)
+with app.app_context():
+    db.create_all()
 
+if __name__ == '__main__':
     # debug=True chỉ khi FLASK_DEBUG=1, mặc định là False
     app.run(host='0.0.0.0', debug=app.config['DEBUG'])
 

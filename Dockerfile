@@ -25,7 +25,5 @@ USER appuser
 
 EXPOSE 5000
 
-# Khởi chạy với Gunicorn: tự tạo DB trước khi start server
-CMD ["sh", "-c", "python -c 'from run import app; from app.models import db; \
-app.app_context().__enter__(); db.create_all()' && \
-gunicorn --config gunicorn.conf.py run:app"]
+# Khởi chạy với Gunicorn (db.create_all() sẽ tự chạy khi Flask app được import)
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "run:app"]
