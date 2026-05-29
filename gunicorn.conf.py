@@ -16,6 +16,7 @@ worker_class = 'sync'
 threads = 1
 timeout = 120              # Đủ lâu cho code sandbox chạy
 keepalive = 5
+worker_tmp_dir = '/dev/shm'  # Fix: Permission denied /home/appuser
 
 # ==========================================
 # Logging

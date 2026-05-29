@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Tạo user riêng (không chạy với quyền root để tăng bảo mật)
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+RUN groupadd -r appgroup && useradd -r -g appgroup -m -d /home/appuser appuser
 
 # Cài đặt docker client để container có thể gọi docker run (sandbox code)
 RUN apt-get update && apt-get install -y --no-install-recommends \
