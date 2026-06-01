@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Kết quả Quiz: {{ lesson.title }} — DP Master{% endblock %}
+{% block content %}
+<style>
+.result-container { max-width: 760px; margin: 2.5rem auto; }
+.result-header { padding: 2.5rem; border-radius: 16px 16px 0 0; text-align: center; color: white; }
+.result-header.passed { background: linear-gradient(135deg, #10b981, #059669); }
+.result-header.failed { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.score-circle { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 4px solid rgba(255,255,255,0.5); }
+.score-number { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+.score-label { font-size: 0.75rem; opacity: 0.9; }
+.result-header h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+.result-header p { opacity: 0.9; margin: 0; }
+.result-body { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 2rem; }
+.review-card { border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid; }
+.review-card.correct { border-color: #10b981; background: #ecfdf5; }
+.review-card.wrong { border-color: #ef4444; background: #fef2f2; }
+.review-q { font-weight: 600; color: #1f2937; margin-bottom: 0.75rem; }
+.review-option { padding: 0.4rem 0.75rem; border-radius: 6px; margin-bottom: 0.3rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+.review-option.correct-answer { background: #d1fae5; color: #065f46; font-weight: 600; }
+.review-option.user-wrong { background: #fee2e2; color: #991b1b; }
+.result-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+.btn-action { padding: 0.85rem 1.75rem; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; display: inline-block; }
+.btn-action:hover { transform: translateY(-2px); }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+.btn-secondary { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
+.btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+.unlock-badge { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-radius: 12px; padding: 1rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+</style>
+
+<div class="result-container">
+    <div class="result-header {{ 'passed' if passed else 'failed' }}">
+        <div class="score-circle">
+            <span class="score-number">{{ score }}/{{ total }}</span>
+            <span class="score-label">{{ "%.0f"|format(percentage) }}%</span>
+        </div>
+        <h1>{% if passed %}🎉 Chúc mừng! Bạn đã vượt qua!{% else %}😔 Chưa đạt. Hãy thử lại!{% endif %}</h1>
+        <p>{{ lesson.title }} — Cần ≥{{ pass_percentage }}% để qua</p>
+    </div>
+
+    <div class="result-body">
+        {% if passed and next_lesson %}
+        <div class="unlock-badge">
+            🔓 <strong>Đã mở khoá:</strong> {{ next_lesson.title }}
+        </div>
+        {% endif %}
+
+        <h3 style="color:#374151; margin:0 0 1rem;">📋 Xem lại đáp án</h3>
+        {% for q in questions %}
+        {% set user_ans = answers.get(q.id, '') %}
+        {% set is_correct = user_ans == q.correct %}
+        <div class="review-card {{ 'correct' if is_correct else 'wrong' }}">
+            <div class="review-q">
+                {{ '✅' if is_correct else '❌' }} Câu {{ loop.index }}: {{ q.question }}
+            </div>
+            {% for key, text in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+            <div class="review-option
+                {% if key == q.correct %}correct-answer
+                {% elif key == user_ans and not is_correct %}user-wrong
+                {% endif %}">
+                {% if key == q.correct %}✓{% elif key == user_ans and not is_correct %}✗{% else %}○{% endif %}
+                <strong>{{ key }}.</strong> {{ text }}
+                {% if key == q.correct %}<em>(Đáp án đúng)</em>{% endif %}
+                {% if key == user_ans and not is_correct %}<em>(Bạn chọn)</em>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="result-actions">
+            <a href="{{ url_for('quiz', slug=lesson.slug) }}" class="btn-action btn-secondary">🔄 Làm lại</a>
+            <a href="{{ url_for('lesson_detail', slug=lesson.slug) }}" class="btn-action btn-secondary">← Quay lại bài học</a>
+            {% if passed and next_lesson %}
+            <a href="{{ url_for('lesson_detail', slug=next_lesson.slug) }}" class="btn-action btn-success">Học bài tiếp theo →</a>
+            {% elif passed %}
+            <a href="{{ url_for('dashboard') }}" class="btn-action btn-primary">🏆 Xem lộ trình</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

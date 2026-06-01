@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết: {{ student.username }} — Admin DP Master{% endblock %}
+{% block content %}
+<style>
+.admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+.admin-sidebar { background: white; border-radius: 14px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); height: fit-content; }
+.admin-sidebar h3 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin: 0 0 0.75rem; padding: 0 0.5rem; }
+.sidebar-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 8px; text-decoration: none; color: #374151; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; margin-bottom: 0.25rem; }
+.sidebar-link:hover, .sidebar-link.active { background: #f5f3ff; color: #667eea; }
+.admin-main { min-width: 0; }
+.student-hero { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 2rem; }
+.student-avatar-lg { width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; flex-shrink: 0; }
+.student-hero h1 { font-size: 1.5rem; color: #1f2937; margin: 0 0 0.5rem; }
+.student-hero p { color: #6b7280; margin: 0; }
+.summary-stats { display: flex; gap: 2rem; margin-top: 1rem; }
+.sum-stat { text-align: center; }
+.sum-stat-num { font-size: 1.5rem; font-weight: 800; color: #667eea; }
+.sum-stat-label { font-size: 0.75rem; color: #9ca3af; }
+.detail-card { background: white; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.detail-card h2 { font-size: 1.1rem; font-weight: 700; color: #1f2937; margin: 0 0 1.25rem; }
+.lesson-detail-row { display: grid; grid-template-columns: 40px 1fr 80px 80px auto; gap: 1rem; align-items: center; padding: 0.9rem 0; border-bottom: 1px solid #f3f4f6; }
+.lesson-detail-row:last-child { border-bottom: none; }
+.lesson-detail-header { display: grid; grid-template-columns: 40px 1fr 80px 80px auto; gap: 1rem; padding: 0.4rem 0 0.6rem; border-bottom: 2px solid #e5e7eb; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+.status-icon { font-size: 1.25rem; text-align: center; }
+.lesson-name { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
+.badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.quiz-score { font-size: 0.8rem; color: #6b7280; }
+.back-btn { display: inline-flex; align-items: center; gap: 0.4rem; color: #667eea; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; }
+.back-btn:hover { text-decoration: underline; }
+</style>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a href="{{ url_for('admin_index') }}" class="sidebar-link">📊 Dashboard</a>
+        <a href="{{ url_for('admin_lessons') }}" class="sidebar-link">📚 Quản lý Bài học</a>
+        <a href="{{ url_for('admin_students') }}" class="sidebar-link active">👥 Học viên</a>
+        <hr style="margin: 1rem 0; border: none; border-top: 1px solid #e5e7eb;">
+        <a href="{{ url_for('index') }}" class="sidebar-link">🌐 Xem trang học</a>
+    </aside>
+
+    <main class="admin-main">
+        <a href="{{ url_for('admin_students') }}" class="back-btn">← Quay lại danh sách</a>
+
+        <!-- Student info -->
+        <div class="student-hero">
+            <div class="student-avatar-lg">{{ student.username[0]|upper }}</div>
+            <div>
+                <h1>{{ student.username }}</h1>
+                <p>ID #{{ student.id }} · Học viên</p>
+                <div class="summary-stats">
+                    {% set completed = detail|selectattr('completed')|list|length %}
+                    {% set quiz_ok = detail|selectattr('quiz_passed')|list|length %}
+                    <div class="sum-stat">
+                        <div class="sum-stat-num">{{ completed }}</div>
+                        <div class="sum-stat-label">Bài hoàn thành</div>
+                    </div>
+                    <div class="sum-stat">
+                        <div class="sum-stat-num">{{ quiz_ok }}</div>
+                        <div class="sum-stat-label">Quiz vượt qua</div>
+                    </div>
+                    <div class="sum-stat">
+                        <div class="sum-stat-num">{{ detail|length }}</div>
+                        <div class="sum-stat-label">Tổng bài học</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson detail -->
+        <div class="detail-card">
+            <h2>📋 Chi tiết tiến độ từng bài</h2>
+            <div class="lesson-detail-header">
+                <div>#</div>
+                <div>Bài học</div>
+                <div>Trạng thái</div>
+                <div>Quiz</div>
+                <div>Điểm quiz gần nhất</div>
+            </div>
+
+            {% for d in detail %}
+            <div class="lesson-detail-row">
+                <div class="status-icon">
+                    {% if d.quiz_passed %}✅
+                    {% elif d.completed %}🟡
+                    {% elif d.accessed %}📖
+                    {% else %}⬜{% endif %}
+                </div>
+                <div>
+                    <div class="lesson-name">{{ d.lesson.order }}. {{ d.lesson.title }}</div>
+                </div>
+                <div>
+                    {% if d.completed %}
+                        <span class="badge badge-green">Hoàn thành</span>
+                    {% elif d.accessed %}
+                        <span class="badge badge-blue">Đang học</span>
+                    {% else %}
+                        <span class="badge badge-gray">Chưa vào</span>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if d.quiz_passed %}
+                        <span class="badge badge-green">✓ Đạt</span>
+                    {% elif d.quiz_result %}
+                        <span class="badge badge-red">✗ Chưa đạt</span>
+                    {% else %}
+                        <span class="badge badge-gray">—</span>
+                    {% endif %}
+                </div>
+                <div class="quiz-score">
+                    {% if d.quiz_result %}
+                        {{ d.quiz_result.score }}/{{ d.quiz_result.total }}
+                        ({{ "%.0f"|format(d.quiz_result.score / d.quiz_result.total * 100 if d.quiz_result.total else 0) }}%)
+                        <br><span style="color: #d1d5db; font-size: 0.7rem;">{{ d.quiz_result.taken_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                    {% else %}
+                        <span style="color: #d1d5db;">—</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

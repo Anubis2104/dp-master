@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Học viên — Admin DP Master{% endblock %}
+{% block content %}
+<style>
+.admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+.admin-sidebar { background: white; border-radius: 14px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); height: fit-content; }
+.admin-sidebar h3 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin: 0 0 0.75rem; padding: 0 0.5rem; }
+.sidebar-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 8px; text-decoration: none; color: #374151; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; margin-bottom: 0.25rem; }
+.sidebar-link:hover, .sidebar-link.active { background: #f5f3ff; color: #667eea; }
+.admin-main { min-width: 0; }
+.page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.5rem; margin: 0; }
+.students-card { background: white; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.admin-table th { text-align: left; padding: 0.65rem 1rem; background: #f9fafb; color: #6b7280; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #e5e7eb; }
+.admin-table td { padding: 0.85rem 1rem; border-bottom: 1px solid #f3f4f6; color: #374151; vertical-align: middle; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: #fafafa; }
+.user-chip { display: flex; align-items: center; gap: 0.75rem; }
+.user-avatar-sm { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.progress-bar-wrap { background: #e5e7eb; border-radius: 9999px; height: 8px; overflow: hidden; min-width: 80px; }
+.progress-bar-fill { background: linear-gradient(90deg, #667eea, #10b981); height: 100%; border-radius: 9999px; transition: width 0.3s; }
+.detail-btn { color: #667eea; font-weight: 600; text-decoration: none; padding: 0.35rem 0.75rem; border: 1.5px solid #667eea; border-radius: 6px; font-size: 0.8rem; transition: all 0.2s; }
+.detail-btn:hover { background: #667eea; color: white; }
+.empty-state { text-align: center; padding: 3rem; color: #9ca3af; }
+</style>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a href="{{ url_for('admin_index') }}" class="sidebar-link">📊 Dashboard</a>
+        <a href="{{ url_for('admin_lessons') }}" class="sidebar-link">📚 Quản lý Bài học</a>
+        <a href="{{ url_for('admin_students') }}" class="sidebar-link active">👥 Học viên</a>
+        <hr style="margin: 1rem 0; border: none; border-top: 1px solid #e5e7eb;">
+        <a href="{{ url_for('index') }}" class="sidebar-link">🌐 Xem trang học</a>
+    </aside>
+
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>👥 Danh sách Học viên ({{ student_data|length }})</h1>
+        </div>
+
+        <div class="students-card">
+            {% if student_data %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Học viên</th>
+                        <th>Tiến độ bài học</th>
+                        <th>Bài hoàn thành</th>
+                        <th>Quiz qua</th>
+                        <th>Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in student_data %}
+                    <tr>
+                        <td>
+                            <div class="user-chip">
+                                <div class="user-avatar-sm">{{ d.student.username[0]|upper }}</div>
+                                <div>
+                                    <div style="font-weight: 600;">{{ d.student.username }}</div>
+                                    <div style="font-size: 0.75rem; color: #9ca3af;">ID #{{ d.student.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="progress-bar-wrap" style="flex: 1; min-width: 100px;">
+                                    <div class="progress-bar-fill"
+                                         style="width: {{ (d.completed_lessons / d.total_lessons * 100)|round|int if d.total_lessons else 0 }}%">
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.8rem; color: #6b7280; white-space: nowrap;">
+                                    {{ d.completed_lessons }}/{{ d.total_lessons }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-weight: 700; color: #10b981;">{{ d.completed_lessons }}</span>
+                        </td>
+                        <td>
+                            <span style="font-weight: 700; color: #667eea;">{{ d.quiz_passed }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_student_detail', student_id=d.student.id) }}" class="detail-btn">
+                                Xem chi tiết →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+                <p>Chưa có học viên nào đăng ký.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

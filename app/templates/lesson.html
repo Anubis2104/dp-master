@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ lesson.title }} - DP Master{% endblock %}
-
 {% block content %}
-{# ============ PHẦN 1: GIỚI THIỆU KỸ THUẬT QUY HOẠCH ĐỘNG ============ #}
+
+{# ============ PHẦN 1: GIỚI THIỆU ============ #}
 <div class="card">
     <div class="mb-4">
         <div class="section-badge">
@@ -119,10 +118,8 @@
         <h3 style="margin-bottom: 1rem; color: var(--text-main);">Output của thuật toán:</h3>
         {% if result.get('success') %}
         <div class="result-box">
-            <h4 style="color: var(--success); margin-bottom: 0.5rem; font-size: 1.1rem;">Khớp thuật toán thành công!
-            </h4>
-            <pre
-                style="background: transparent !important; color: inherit !important; padding: 0; font-size: 1rem; border: none; white-space: pre-wrap; word-wrap: break-word;">{{ result_json }}</pre>
+            <h4 style="color: var(--success); margin-bottom: 0.5rem; font-size: 1.1rem;">Khớp thuật toán thành công!</h4>
+            <pre style="background: transparent !important; color: inherit !important; padding: 0; font-size: 1rem; border: none; white-space: pre-wrap; word-wrap: break-word;">{{ result_json }}</pre>
         </div>
         {% else %}
         <div class="error-box">
@@ -143,108 +140,90 @@
     </div>
     <div class="mb-4 position-relative">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h3 style="font-size: 1.1rem; margin: 0; font-weight: bold; color: #111;">Khu vực luyện tập code của bạn:
-            </h3>
+            <h3 style="font-size: 1.1rem; margin: 0; font-weight: bold; color: #111;">Khu vực luyện tập code của bạn:</h3>
             <div>
                 <button type="button" onclick="resetCode()" class="btn btn-sm"
-                    style="margin-right: 0.5rem; padding: 0.4rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; background-color: #0d6efd; color: white;">Khôi
-                    phục</button>
+                    style="margin-right: 0.5rem; padding: 0.4rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; background-color: #0d6efd; color: white;">Khôi phục</button>
                 <button type="button" onclick="executeUserCode()" class="btn btn-sm"
-                    style="padding: 0.4rem 1rem; font-size: 0.9rem; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">Chạy
-                    Code</button>
+                    style="padding: 0.4rem 1rem; font-size: 0.9rem; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">Chạy Code</button>
             </div>
         </div>
 
-        <div
-            style="border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
             <textarea id="userCodeEditor" style="display: none;">{{ lesson.python_code }}</textarea>
         </div>
-        <!-- Hidden div to store original code for reset -->
         <textarea id="originalCode" style="display: none;">{{ lesson.python_code }}</textarea>
 
         <div id="terminalContainer" class="mt-3"
             style="display: none; border-radius: 6px; overflow: hidden; font-family: monospace; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div
-                style="background-color: #2d2d2d; color: #fff; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a;">
+            <div style="background-color: #2d2d2d; color: #fff; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a;">
                 <span style="font-weight: bold;">Terminal Output</span>
-                <span onclick="closeTerminal()"
-                    style="cursor: pointer; color: #ff5f56; font-weight: bold; font-size: 1.2rem; line-height: 1;">&times;</span>
+                <span onclick="closeTerminal()" style="cursor: pointer; color: #ff5f56; font-weight: bold; font-size: 1.2rem; line-height: 1;">&times;</span>
             </div>
-            <pre id="codeOutput"
-                style="background-color: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 0; min-height: 80px; font-size: 0.95rem; white-space: pre-wrap; word-wrap: break-word;"></pre>
+            <pre id="codeOutput" style="background-color: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 0; min-height: 80px; font-size: 0.95rem; white-space: pre-wrap; word-wrap: break-word;"></pre>
         </div>
     </div>
 
-    <!-- CodeMirror CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
-    <!-- CodeMirror JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 
     <style>
-        .CodeMirror {
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 15px;
-            height: auto;
-            min-height: 350px;
-        }
+        .CodeMirror { font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; height: auto; min-height: 350px; }
     </style>
 
     <script>
         var editor = CodeMirror.fromTextArea(document.getElementById("userCodeEditor"), {
-            mode: "python",
-            theme: "dracula",
-            lineNumbers: true,
-            indentUnit: 4,
-            matchBrackets: true,
-            viewportMargin: Infinity
+            mode: "python", theme: "dracula", lineNumbers: true, indentUnit: 4,
+            matchBrackets: true, viewportMargin: Infinity
         });
-
-        function resetCode() {
-            var original = document.getElementById("originalCode").value;
-            editor.setValue(original);
-            closeTerminal();
-        }
-
-        function closeTerminal() {
-            document.getElementById("terminalContainer").style.display = "none";
-        }
-
+        function resetCode() { editor.setValue(document.getElementById("originalCode").value); closeTerminal(); }
+        function closeTerminal() { document.getElementById("terminalContainer").style.display = "none"; }
         function executeUserCode() {
             var code = editor.getValue();
             var outputEl = document.getElementById("codeOutput");
             var terminalContainer = document.getElementById("terminalContainer");
-
             terminalContainer.style.display = "block";
             outputEl.innerText = "⏳ Đang chạy code...";
-
             fetch('/run_code', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                 body: JSON.stringify({ code: code })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (data.output && data.output.trim() !== "") {
-                            outputEl.innerText = data.output;
-                        } else {
-                            outputEl.innerText = "(Chương trình thực thi thành công nhưng không có output)";
-                        }
-                    } else {
-                        outputEl.innerText = "❌ " + data.output;
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    outputEl.innerText = "❌ Lỗi khi gửi yêu cầu chạy code.";
-                });
+            }).then(r => r.json()).then(data => {
+                outputEl.innerText = data.success ? (data.output && data.output.trim() !== "" ? data.output : "(Không có output)") : "❌ " + data.output;
+            }).catch(() => { outputEl.innerText = "❌ Lỗi khi gửi yêu cầu chạy code."; });
         }
     </script>
 </div>
 {% endif %}
+
+{# ============ PHẦN 5: BÀI KIỂM TRA (luôn hiển thị) ============ #}
+<div class="card" style="background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%); border: 2px solid {% if quiz_passed %}#10b981{% else %}#667eea{% endif %};">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: {% if quiz_passed %}#059669{% else %}#667eea{% endif %}; margin-bottom: 0.5rem;">
+                {% if quiz_passed %}✅ Đã vượt qua{% else %}📝 Bài Kiểm Tra{% endif %}
+            </div>
+            <h3 style="margin: 0 0 0.4rem; color: #1f2937;">
+                {% if quiz_passed %}Bạn đã hoàn thành bài {{ lesson.order }}!{% else %}Làm bài kiểm tra để mở khoá bài tiếp theo{% endif %}
+            </h3>
+            <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">
+                {% if quiz_passed %}
+                    Bạn đã qua bài kiểm tra này. Bài tiếp theo đã được mở khoá.
+                {% else %}
+                    4 câu trắc nghiệm về {{ lesson.title }}. Cần đạt ≥{{ lesson.pass_percentage }}% để mở khoá bài tiếp theo.
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('quiz', slug=lesson.slug) }}"
+               style="display: inline-block; background: {% if quiz_passed %}linear-gradient(135deg, #10b981, #059669){% else %}linear-gradient(135deg, #667eea, #764ba2){% endif %}; color: white; padding: 0.85rem 1.75rem; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 0.95rem;"
+               onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                {% if quiz_passed %}📝 Làm lại quiz{% else %}📝 Bắt đầu kiểm tra →{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

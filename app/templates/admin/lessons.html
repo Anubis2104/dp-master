@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Bài học — Admin DP Master{% endblock %}
+{% block content %}
+<style>
+.admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+.admin-sidebar { background: white; border-radius: 14px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); height: fit-content; }
+.admin-sidebar h3 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin: 0 0 0.75rem; padding: 0 0.5rem; }
+.sidebar-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 8px; text-decoration: none; color: #374151; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; margin-bottom: 0.25rem; }
+.sidebar-link:hover, .sidebar-link.active { background: #f5f3ff; color: #667eea; }
+.admin-main { min-width: 0; }
+.page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.5rem; margin: 0; }
+.lesson-table-card { background: white; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.lesson-row { display: grid; grid-template-columns: 50px 1fr 100px 100px 100px 110px; gap: 1rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+.lesson-row:last-child { border-bottom: none; }
+.lesson-row-header { display: grid; grid-template-columns: 50px 1fr 100px 100px 100px 110px; gap: 1rem; padding: 0.5rem 0 0.75rem; border-bottom: 2px solid #e5e7eb; margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #9ca3af; }
+.order-badge { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
+.lesson-title { font-weight: 600; color: #1f2937; font-size: 0.95rem; }
+.lesson-slug { font-size: 0.75rem; color: #9ca3af; font-family: monospace; margin-top: 0.2rem; }
+.stat-num { font-size: 1rem; font-weight: 700; color: #374151; }
+.stat-sub { font-size: 0.75rem; color: #9ca3af; }
+.move-btns { display: flex; gap: 0.4rem; }
+.move-btn { padding: 0.3rem 0.6rem; border: 1.5px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; color: #374151; }
+.move-btn:hover { border-color: #667eea; color: #667eea; background: #f5f3ff; }
+.move-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.view-btn { color: #667eea; font-weight: 600; text-decoration: none; font-size: 0.85rem; }
+.view-btn:hover { text-decoration: underline; }
+.pass-pct { font-size: 0.8rem; color: #6b7280; margin-top: 0.2rem; }
+</style>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a href="{{ url_for('admin_index') }}" class="sidebar-link">📊 Dashboard</a>
+        <a href="{{ url_for('admin_lessons') }}" class="sidebar-link active">📚 Quản lý Bài học</a>
+        <a href="{{ url_for('admin_students') }}" class="sidebar-link">👥 Học viên</a>
+        <hr style="margin: 1rem 0; border: none; border-top: 1px solid #e5e7eb;">
+        <a href="{{ url_for('index') }}" class="sidebar-link">🌐 Xem trang học</a>
+    </aside>
+
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>📚 Quản lý Bài học</h1>
+        </div>
+
+        <div class="lesson-table-card">
+            <div class="lesson-row-header">
+                <div>#</div>
+                <div>Tên bài</div>
+                <div>Học viên</div>
+                <div>Hoàn thành</div>
+                <div>Qua quiz</div>
+                <div>Thao tác</div>
+            </div>
+
+            {% for s in lesson_stats %}
+            <div class="lesson-row">
+                <div>
+                    <div class="order-badge">{{ s.lesson.order }}</div>
+                </div>
+                <div>
+                    <div class="lesson-title">{{ s.lesson.title }}</div>
+                    <div class="lesson-slug">/lesson/{{ s.lesson.slug }}</div>
+                    <div class="pass-pct">Yêu cầu quiz: ≥{{ s.lesson.pass_percentage }}% | {{ s.q_count }} câu hỏi</div>
+                </div>
+                <div>
+                    <div class="stat-num">{{ s.learners }}</div>
+                    <div class="stat-sub">học viên</div>
+                </div>
+                <div>
+                    <div class="stat-num" style="color: #10b981;">{{ s.completions }}</div>
+                    <div class="stat-sub">hoàn thành</div>
+                </div>
+                <div>
+                    <div class="stat-num" style="color: #667eea;">{{ s.quiz_passes }}</div>
+                    <div class="stat-sub">qua quiz</div>
+                </div>
+                <div>
+                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <a href="{{ url_for('lesson_detail', slug=s.lesson.slug) }}" class="view-btn" target="_blank">👁 Xem bài</a>
+                        <div class="move-btns">
+                            <form method="POST" action="{{ url_for('admin_lesson_move', lesson_id=s.lesson.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="direction" value="up">
+                                <button type="submit" class="move-btn" {% if s.lesson.order == 1 %}disabled{% endif %} title="Lên trên">▲</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin_lesson_move', lesson_id=s.lesson.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="direction" value="down">
+                                <button type="submit" class="move-btn" {% if loop.last %}disabled{% endif %} title="Xuống dưới">▼</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

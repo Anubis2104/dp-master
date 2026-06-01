@@ -1,37 +1,79 @@
 {% extends 'base.html' %}
-
 {% block title %}Trang chủ - DP Master{% endblock %}
-
 {% block content %}
+<style>
+.lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.lesson-card { background: white; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 2px solid transparent; transition: all 0.25s; position: relative; overflow: hidden; }
+.lesson-card.unlocked { border-color: #e5e7eb; cursor: pointer; }
+.lesson-card.unlocked:hover { border-color: #667eea; box-shadow: 0 8px 24px rgba(102,126,234,0.15); transform: translateY(-3px); }
+.lesson-card.locked { border-color: #e5e7eb; opacity: 0.7; }
+.lesson-card.quiz-passed { border-color: #10b981; }
+.lesson-number { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+.lesson-card h3 { font-size: 1rem; font-weight: 700; color: #1f2937; margin: 0 0 0.6rem; }
+.lesson-card p { color: #6b7280; font-size: 0.875rem; line-height: 1.6; margin: 0 0 1rem; }
+.lesson-footer { display: flex; align-items: center; justify-content: space-between; }
+.cta-link { color: #667eea; font-weight: 600; font-size: 0.875rem; text-decoration: none; }
+.cta-link.locked-cta { color: #9ca3af; cursor: not-allowed; }
+.lock-badge { position: absolute; top: 1rem; right: 1rem; background: #f3f4f6; border-radius: 8px; padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+.done-badge { position: absolute; top: 1rem; right: 1rem; background: #d1fae5; color: #059669; border-radius: 8px; padding: 0.25rem 0.5rem; font-size: 0.8rem; font-weight: 600; }
+</style>
+
 <div class="text-center mb-4" style="padding: 2rem 0;">
     <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Làm chủ <span style="color: var(--primary);">Quy Hoạch Động</span></h1>
-    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Nền tảng học thuật toán tương tác. Khám phá 9 bí kíp quy hoạch động kinh điển, từ cơ bản đến nâng cao.</p>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Nền tảng học thuật toán tương tác. Học 9 bài kinh điển, làm quiz để mở khoá bài tiếp theo.</p>
 </div>
 
-<div class="grid">
-    {% if current_user.is_authenticated %}
-        {% if lessons %}
-            {% for lesson in lessons %}
-                <a href="/lesson/{{ lesson.slug }}" style="text-decoration: none; color: inherit;">
-                    <div class="card">
-                        <h3>{{ lesson.title }}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.95rem;">{{ lesson.theory[:100] }}...</p>
-                        <div style="margin-top: 1rem; color: var(--primary); font-weight: 500; font-size: 0.9rem;">Thực hành ngay →</div>
-                    </div>
-                </a>
-            {% endfor %}
-        {% else %}
-            <div class="card" style="grid-column: 1 / -1;">
-                <p>Hệ thống chưa có bài học nào. Vui lòng liên hệ Admin.</p>
+{% if current_user.is_authenticated %}
+    {% if lessons %}
+    <div class="lesson-grid">
+        {% for lesson in lessons %}
+        {% set unlocked = unlock_map.get(lesson.id, false) %}
+        {% set passed = quiz_passed_map.get(lesson.id, false) %}
+
+        <div class="lesson-card {{ 'quiz-passed' if passed else ('unlocked' if unlocked else 'locked') }}">
+
+            {% if passed %}
+            <div class="done-badge">✅ Đã qua quiz</div>
+            {% elif not unlocked %}
+            <div class="lock-badge">🔒</div>
+            {% endif %}
+
+            <div class="lesson-number">
+                Bài {{ lesson.order }}
+                {% if not unlocked %}· Cần qua quiz bài {{ lesson.order - 1 }}{% endif %}
             </div>
-        {% endif %}
-    {% else %}
-        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-            <h3>Nội dung đã bị khóa</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Vui lòng đăng nhập để xem danh sách các bài học quy hoạch động.</p>
-            <a href="/login" class="btn" style="display: inline-block; width: auto; padding: 0.6rem 2rem;">Đăng nhập ngay</a>
+
+            <h3>{{ lesson.title }}</h3>
+            <p>{{ lesson.theory[:110] }}...</p>
+
+            <div class="lesson-footer">
+                {% if unlocked %}
+                <a href="{{ url_for('lesson_detail', slug=lesson.slug) }}" class="cta-link">
+                    {{ '📖 Ôn tập' if passed else 'Học ngay →' }}
+                </a>
+                {% if passed %}
+                <a href="{{ url_for('quiz', slug=lesson.slug) }}" style="color: #10b981; font-size: 0.8rem; font-weight: 600; text-decoration: none;">📝 Làm lại quiz</a>
+                {% else %}
+                <span style="font-size: 0.75rem; color: #9ca3af;">Cần ≥{{ lesson.pass_percentage }}% để qua quiz</span>
+                {% endif %}
+                {% else %}
+                <span class="cta-link locked-cta">🔒 Chưa mở khoá</span>
+                {% endif %}
+            </div>
         </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding: 3rem;">
+        <p>Hệ thống chưa có bài học nào. Vui lòng liên hệ Admin.</p>
+    </div>
     {% endif %}
-</div>
+{% else %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+        <h3>Nội dung đã bị khoá</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Vui lòng đăng nhập để xem danh sách các bài học quy hoạch động.</p>
+        <a href="/login" class="btn" style="display: inline-block; width: auto; padding: 0.6rem 2rem;">Đăng nhập ngay</a>
+    </div>
+{% endif %}
 {% endblock %}

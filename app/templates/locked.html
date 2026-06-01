@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Bài học bị khoá — DP Master{% endblock %}
+{% block content %}
+<style>
+.locked-container { max-width: 560px; margin: 4rem auto; text-align: center; }
+.lock-icon { font-size: 5rem; margin-bottom: 1.5rem; }
+.locked-card { background: white; border-radius: 20px; padding: 3rem 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 2px solid #e5e7eb; }
+.locked-card h1 { font-size: 1.5rem; color: #1f2937; margin: 0 0 1rem; }
+.locked-card p { color: #6b7280; line-height: 1.7; margin-bottom: 1.5rem; }
+.quiz-link { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.85rem 2rem; border-radius: 10px; text-decoration: none; font-weight: 600; margin-right: 0.75rem; transition: transform 0.2s; }
+.quiz-link:hover { transform: translateY(-2px); color: white; }
+.back-link { display: inline-block; background: #f3f4f6; color: #374151; padding: 0.85rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
+.back-link:hover { background: #e5e7eb; }
+</style>
+
+<div class="locked-container">
+    <div class="locked-card">
+        <div class="lock-icon">🔒</div>
+        <h1>Bài học chưa được mở khoá</h1>
+        <p>
+            Để học <strong>{{ lesson.title }}</strong>, bạn cần vượt qua bài kiểm tra của
+            bài trước: <strong>{{ prev_lesson.title }}</strong>.
+        </p>
+        <div>
+            <a href="{{ url_for('quiz', slug=prev_lesson.slug) }}" class="quiz-link">
+                📝 Làm bài kiểm tra bài {{ prev_lesson.order }}
+            </a>
+            <a href="{{ url_for('index') }}" class="back-link">← Về trang chủ</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

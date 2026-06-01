@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Quiz: {{ lesson.title }} — DP Master{% endblock %}
+{% block content %}
+<style>
+.quiz-container { max-width: 760px; margin: 2.5rem auto; }
+.quiz-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px 16px 0 0; padding: 2rem; }
+.quiz-header h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+.quiz-header p { opacity: 0.85; margin: 0; font-size: 0.95rem; }
+.quiz-body { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 2rem; }
+.question-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+.question-card:focus-within { border-color: #667eea; }
+.question-num { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #667eea; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+.question-text { font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; line-height: 1.6; }
+.options { display: flex; flex-direction: column; gap: 0.6rem; }
+.option-label { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; border: 1.5px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+.option-label:hover { border-color: #667eea; background: #f5f3ff; }
+.option-label input[type="radio"] { margin-top: 0.15rem; accent-color: #667eea; flex-shrink: 0; }
+.option-key { font-weight: 700; color: #667eea; min-width: 20px; }
+.quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; }
+.pass-info { font-size: 0.88rem; color: #6b7280; }
+.pass-info strong { color: #667eea; }
+.submit-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 0.85rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+.already-passed { background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+.already-passed h3 { color: #059669; margin: 0 0 0.5rem; }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1>📝 Bài Kiểm Tra: {{ lesson.title }}</h1>
+        <p>Trả lời {{ questions|length }} câu hỏi trắc nghiệm. Cần đạt ≥{{ lesson.pass_percentage }}% để mở khoá bài tiếp theo.</p>
+    </div>
+    <div class="quiz-body">
+        {% if already_passed %}
+        <div class="already-passed">
+            <h3>✅ Bạn đã vượt qua bài kiểm tra này!</h3>
+            <p style="color:#065f46; margin:0">Bạn có thể làm lại để ôn tập.</p>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            {% for q in questions %}
+            <div class="question-card">
+                <div class="question-num">Câu {{ loop.index }} / {{ questions|length }}</div>
+                <div class="question-text">{{ q.question }}</div>
+                <div class="options">
+                    {% for key, text in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+                    <label class="option-label">
+                        <input type="radio" name="q_{{ q.id }}" value="{{ key }}" required>
+                        <span class="option-key">{{ key }}.</span>
+                        <span>{{ text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="quiz-footer">
+                <div class="pass-info">
+                    Cần đạt <strong>≥{{ lesson.pass_percentage }}%</strong> để vượt qua
+                    ({{ (questions|length * lesson.pass_percentage / 100)|round(0, 'ceil')|int }}/{{ questions|length }} câu đúng)
+                </div>
+                <button type="submit" class="submit-btn" id="submitQuizBtn">Nộp bài →</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+document.getElementById('submitQuizBtn').addEventListener('click', function(e) {
+    const radios = document.querySelectorAll('input[type="radio"]');
+    const answered = new Set([...radios].filter(r => r.checked).map(r => r.name));
+    const total = new Set([...radios].map(r => r.name)).size;
+    if (answered.size < total) {
+        e.preventDefault();
+        alert('Vui lòng trả lời tất cả ' + total + ' câu hỏi trước khi nộp bài!');
+    }
+});
+</script>
+{% endblock %}

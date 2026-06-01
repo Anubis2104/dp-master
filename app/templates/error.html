@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Trang không tìm thấy — DP Master{% endblock %}
+{% block content %}
+<style>
+.error-container { max-width: 500px; margin: 5rem auto; text-align: center; }
+.error-code { font-size: 6rem; font-weight: 900; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.error-msg { font-size: 1.25rem; color: #374151; margin: 1rem 0 2rem; }
+.back-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.85rem 2rem; border-radius: 10px; text-decoration: none; font-weight: 600; }
+</style>
+<div class="error-container">
+    <div class="error-code">{{ code }}</div>
+    <div class="error-msg">{{ message }}</div>
+    <a href="/" class="back-btn">← Về trang chủ</a>
+</div>
+{% endblock %}

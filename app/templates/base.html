@@ -13,7 +13,12 @@
             <a href="/" class="logo"><span>DP</span> Master</a>
             <nav>
                 <a href="/">Thư viện Thuật toán</a>
+                {% if not current_user.is_authenticated or current_user.role != 'admin' %}
                 <a href="/dashboard">Lộ trình học</a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <a href="/admin" style="color: #f59e0b; font-weight: 600;">⚙️ Admin Panel</a>
+                {% endif %}
 
                 {% if current_user.is_authenticated %}
                 <!-- User dropdown - Microsoft Learn style -->
@@ -28,7 +33,7 @@
                             <span class="user-avatar-lg">{{ current_user.username[0]|upper }}</span>
                             <div>
                                 <p class="dropdown-username">{{ current_user.username }}</p>
-                                <p class="dropdown-subtitle">Học viên</p>
+                                <p class="dropdown-subtitle">{% if current_user.role == 'admin' %}👑 Quản trị viên{% else %}Học viên{% endif %}</p>
                             </div>
                         </div>
                         <hr class="dropdown-divider">
