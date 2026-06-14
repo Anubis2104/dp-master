@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block title %}Lý Thuyết Quy Hoạch Động — DP Master{% endblock %}
+{% block content %}
+<style>
+/* ======= THEORY PAGE STYLES ======= */
+.theory-hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+  color: white; border-radius: 20px; padding: 3rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden;
+}
+.theory-hero::before {
+  content: '∑DP'; position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
+  font-size: 8rem; font-weight: 900; opacity: 0.06; color: white; pointer-events: none;
+}
+.theory-hero h1 { font-size: 2.2rem; margin: 0 0 1rem; line-height: 1.2; }
+.theory-hero p { font-size: 1.1rem; opacity: 0.85; max-width: 680px; line-height: 1.8; margin: 0; }
+.theory-badge {
+  display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 9999px; padding: 0.3rem 1rem; font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem;
+}
+
+.theory-card {
+  background: white; border-radius: 16px; padding: 2rem 2.5rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 1.5rem;
+  border-left: 5px solid #667eea;
+}
+.theory-card h2 { font-size: 1.4rem; color: #1e1b4b; margin: 0 0 1.25rem; display: flex; align-items: center; gap: 0.6rem; }
+.theory-card h3 { font-size: 1.1rem; color: #374151; margin: 1.5rem 0 0.75rem; }
+.theory-card p { color: #4b5563; line-height: 1.8; margin-bottom: 1rem; }
+.theory-card ul, .theory-card ol { color: #4b5563; line-height: 1.9; padding-left: 1.5rem; }
+.theory-card li { margin-bottom: 0.3rem; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+.approach-card {
+  border-radius: 12px; padding: 1.5rem;
+  border: 2px solid;
+}
+.approach-card.top-down { border-color: #667eea; background: #f5f3ff; }
+.approach-card.bottom-up { border-color: #10b981; background: #ecfdf5; }
+.approach-card h3 { margin: 0 0 0.75rem; font-size: 1.05rem; }
+.approach-card.top-down h3 { color: #4f46e5; }
+.approach-card.bottom-up h3 { color: #059669; }
+.approach-card p { font-size: 0.9rem; color: #374151; line-height: 1.7; margin-bottom: 0.5rem; }
+.approach-code { background: #1e293b; color: #a5f3fc; border-radius: 8px; padding: 0.85rem 1rem; font-family: 'Consolas', monospace; font-size: 0.85rem; line-height: 1.6; margin-top: 0.75rem; }
+
+.step-list { list-style: none; padding: 0; margin: 0; }
+.step-list li { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
+.step-num { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
+.step-text strong { display: block; color: #1e1b4b; margin-bottom: 0.2rem; }
+.step-text span { color: #6b7280; font-size: 0.9rem; line-height: 1.6; }
+
+.dp-type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.dp-type-card { border: 2px solid #e5e7eb; border-radius: 10px; padding: 1rem; text-align: center; transition: all 0.2s; }
+.dp-type-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102,126,234,0.15); }
+.dp-type-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.dp-type-name { font-weight: 700; color: #1f2937; font-size: 0.9rem; margin-bottom: 0.25rem; }
+.dp-type-examples { font-size: 0.78rem; color: #9ca3af; }
+
+.compare-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.compare-table th { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.75rem 1rem; text-align: left; font-weight: 600; }
+.compare-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #f3f4f6; color: #374151; }
+.compare-table tr:hover td { background: #fafafa; }
+.compare-table tr:last-child td { border-bottom: none; }
+
+.formula-highlight { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Consolas', monospace; font-size: 1rem; color: #78350f; border-left: 4px solid #f59e0b; margin: 1rem 0; }
+.tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 6px; padding: 0.15rem 0.5rem; font-size: 0.78rem; font-weight: 600; margin: 0.15rem; }
+
+.lesson-link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.lesson-link-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; text-decoration: none; transition: all 0.2s; }
+.lesson-link-card:hover { border-color: #667eea; background: #f5f3ff; transform: translateY(-2px); }
+.lesson-num-badge { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+.lesson-link-title { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
+.lesson-link-type { font-size: 0.75rem; color: #9ca3af; margin-top: 0.1rem; }
+</style>
+
+<!-- HERO -->
+<div class="theory-hero">
+  <div class="theory-badge">📖 Lý thuyết nền tảng</div>
+  <h1>Quy Hoạch Động<br>(Dynamic Programming)</h1>
+  <p>Kỹ thuật tối ưu hóa mạnh mẽ nhất trong khoa học máy tính — giải quyết bài toán phức tạp bằng cách chia nhỏ và lưu trữ kết quả trung gian.</p>
+</div>
+
+<!-- 1. ĐỊNH NGHĨA -->
+<div class="theory-card">
+  <h2>📌 Quy Hoạch Động là gì?</h2>
+  <p><strong>Quy Hoạch Động (Dynamic Programming — DP)</strong> là kỹ thuật thiết kế thuật toán do
+  nhà toán học <strong>Richard Bellman</strong> phát triển vào những năm 1950 tại RAND Corporation.
+  Tên "dynamic programming" được chọn có chủ ý để nghe hay hơn và tránh sự phản đối của ban quản lý.</p>
+
+  <p>DP giải quyết bài toán tối ưu bằng cách:</p>
+  <ul>
+    <li><strong>Chia nhỏ</strong> bài toán lớn thành các bài toán con nhỏ hơn</li>
+    <li><strong>Giải mỗi bài toán con một lần</strong> và lưu kết quả</li>
+    <li><strong>Tái sử dụng</strong> kết quả đã tính thay vì tính lại</li>
+  </ul>
+
+  <div class="formula-highlight">
+    Slogan: "Những quyết định tối ưu trong quá khứ dẫn đến nghiệm tối ưu trong tương lai."
+  </div>
+
+  <p>DP khác với <strong>Chia để trị (Divide & Conquer)</strong> ở chỗ: bài toán con trong D&C là
+  <em>độc lập</em> nhau (Merge Sort, Quick Sort), còn trong DP các bài toán con <em>giao nhau</em>
+  (cùng bài toán con xuất hiện nhiều lần).</p>
+</div>
+
+<!-- 2. HAI ĐIỀU KIỆN -->
+<div class="theory-card" style="border-left-color: #10b981;">
+  <h2 style="color: #065f46;">✅ Hai điều kiện áp dụng QHĐ</h2>
+
+  <h3>1. Tối ưu con (Optimal Substructure)</h3>
+  <p>Nghiệm tối ưu của bài toán lớn <strong>được xây dựng</strong> từ nghiệm tối ưu của các bài toán con.
+  Nói cách khác: nếu ta biết nghiệm tối ưu của mọi bài toán con, ta có thể ghép chúng lại thành nghiệm tối ưu của bài toán gốc.</p>
+  <div class="formula-highlight">
+    Ví dụ: Đường đi ngắn nhất từ A → C qua B = (A→B ngắn nhất) + (B→C ngắn nhất)
+  </div>
+
+  <h3>2. Bài toán con giao nhau (Overlapping Subproblems)</h3>
+  <p>Cùng một bài toán con xuất hiện <strong>nhiều lần</strong> trong quá trình giải bài toán lớn.
+  Đây là điều phân biệt DP với D&C — thay vì giải lại mỗi lần, DP lưu kết quả vào bảng (memoization/tabulation).</p>
+  <div class="formula-highlight">
+    Ví dụ Fibonacci: fib(5) = fib(4)+fib(3), fib(4) = fib(3)+fib(2) → fib(3) được gọi 2 lần!<br>
+    Đệ quy thuần: O(2ⁿ) | DP: O(n)
+  </div>
+</div>
+
+<!-- 3. TOP-DOWN vs BOTTOM-UP -->
+<div class="theory-card" style="border-left-color: #f59e0b;">
+  <h2 style="color: #78350f;">🔄 Hai cách tiếp cận</h2>
+
+  <div class="two-col">
+    <div class="approach-card top-down">
+      <h3>⬇️ Top-down (Memoization)</h3>
+      <p>Viết đệ quy như bình thường, nhưng <strong>lưu kết quả</strong> vào bảng (memo) để tránh tính lại.</p>
+      <p>✅ Tự nhiên, dễ viết từ công thức truy hồi<br>
+         ✅ Chỉ tính các bài toán con cần thiết<br>
+         ⚠️ Có overhead của đệ quy (call stack)</p>
+      <div class="approach-code">memo = {}<br>def fib(n):<br>  if n in memo: return memo[n]<br>  if n <= 1: return n<br>  memo[n] = fib(n-1)+fib(n-2)<br>  return memo[n]</div>
+    </div>
+    <div class="approach-card bottom-up">
+      <h3>⬆️ Bottom-up (Tabulation)</h3>
+      <p>Xây dựng bảng DP từ <strong>base case nhỏ nhất</strong> lên, không dùng đệ quy.</p>
+      <p>✅ Không có overhead đệ quy<br>
+         ✅ Dễ phân tích bộ nhớ và tối ưu hóa<br>
+         ⚠️ Cần xác định đúng thứ tự tính</p>
+      <div class="approach-code">dp = [0] * (n+1)<br>dp[0], dp[1] = 0, 1<br>for i in range(2, n+1):<br>  dp[i] = dp[i-1] + dp[i-2]</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. QUY TRÌNH 5 BƯỚC -->
+<div class="theory-card" style="border-left-color: #8b5cf6;">
+  <h2 style="color: #5b21b6;">🪜 Quy trình giải bài toán DP — 5 bước</h2>
+  <ul class="step-list">
+    <li>
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Xác định cấu trúc bài toán con</strong>
+        <span>Bài toán lớn phụ thuộc vào bài toán con nào? Tham số nào định nghĩa trạng thái?</span>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>Định nghĩa trạng thái dp[...]</strong>
+        <span>dp[i], dp[i][j], v.v. biểu diễn điều gì? Phải rõ ràng và nhất quán.</span>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>Xây dựng công thức truy hồi</strong>
+        <span>Làm thế nào tính dp[i] từ các dp đã biết nhỏ hơn? Đây là trái tim của DP.</span>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>Xác định trường hợp cơ sở (Base Case)</strong>
+        <span>dp[0], dp[0][0]... = ? Không có base case → đệ quy vô hạn.</span>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">5</div>
+      <div class="step-text">
+        <strong>Tính toán theo đúng thứ tự</strong>
+        <span>Đảm bảo dp[i] luôn được tính sau tất cả các dp nó phụ thuộc vào. Tối ưu không gian nếu cần.</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- 5. PHÂN LOẠI DP -->
+<div class="theory-card" style="border-left-color: #ef4444;">
+  <h2 style="color: #991b1b;">📂 Phân loại bài toán Quy Hoạch Động</h2>
+  <div class="dp-type-grid">
+    <div class="dp-type-card">
+      <div class="dp-type-icon">1️⃣</div>
+      <div class="dp-type-name">Linear DP (1D)</div>
+      <div class="dp-type-examples">Coin Change, Climbing Stairs, Fibonacci</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🔢</div>
+      <div class="dp-type-name">Sequence DP</div>
+      <div class="dp-type-examples">LIS, Longest Zigzag Subsequence</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">📐</div>
+      <div class="dp-type-name">Grid/2D DP</div>
+      <div class="dp-type-examples">LCS, Edit Distance, 0/1 Knapsack</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🔄</div>
+      <div class="dp-type-name">Interval DP</div>
+      <div class="dp-type-examples">Matrix Chain, Burst Balloons, Palindrome</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🌐</div>
+      <div class="dp-type-name">Graph DP</div>
+      <div class="dp-type-examples">DAG Shortest Path, Floyd-Warshall</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🎒</div>
+      <div class="dp-type-name">Knapsack DP</div>
+      <div class="dp-type-examples">0/1, Unbounded, Bounded, Multi-dim</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🌳</div>
+      <div class="dp-type-name">Tree DP</div>
+      <div class="dp-type-examples">Max Independent Set on Tree, Tree Diameter</div>
+    </div>
+    <div class="dp-type-card">
+      <div class="dp-type-icon">🎭</div>
+      <div class="dp-type-name">Bitmask DP</div>
+      <div class="dp-type-examples">TSP, Optimal Task Assignment</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. SO SÁNH VỚI CÁC KỸ THUẬT KHÁC -->
+<div class="theory-card" style="border-left-color: #06b6d4;">
+  <h2 style="color: #0e7490;">🔍 So sánh với các kỹ thuật thiết kế khác</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Kỹ thuật</th>
+        <th>Ý tưởng chính</th>
+        <th>Bài toán con</th>
+        <th>Phù hợp khi nào</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Brute Force</strong></td>
+        <td>Thử mọi khả năng</td>
+        <td>—</td>
+        <td>n rất nhỏ (&lt;15)</td>
+      </tr>
+      <tr>
+        <td><strong>Chia để trị</strong></td>
+        <td>Chia, giải độc lập, gộp</td>
+        <td>Độc lập</td>
+        <td>Sort, FFT, nhân số lớn</td>
+      </tr>
+      <tr>
+        <td><strong>Tham lam (Greedy)</strong></td>
+        <td>Chọn tốt nhất tại mỗi bước</td>
+        <td>Không cần lưu</td>
+        <td>Fractional Knapsack, Huffman</td>
+      </tr>
+      <tr>
+        <td><strong style="color: #4f46e5;">Quy Hoạch Động</strong></td>
+        <td>Chia, lưu kết quả, dùng lại</td>
+        <td>Giao nhau</td>
+        <td>Tối ưu hóa có cấu trúc con</td>
+      </tr>
+      <tr>
+        <td><strong>Quay lui (Backtracking)</strong></td>
+        <td>Thử & quay lui khi thất bại</td>
+        <td>—</td>
+        <td>N-Queens, Sudoku, tổ hợp</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 7. LINK ĐẾN CÁC BÀI HỌC -->
+<div class="theory-card" style="border-left-color: #667eea;">
+  <h2>🎓 Khám phá 9 bài toán QHĐ kinh điển</h2>
+  <p>Mỗi bài toán dưới đây minh họa một hoặc nhiều kỹ thuật QHĐ quan trọng.
+  Hãy học theo thứ tự để xây dựng nền tảng vững chắc!</p>
+  <div class="lesson-link-grid">
+    {% for lesson in lessons %}
+    <a href="{{ url_for('lesson_detail', slug=lesson.slug) }}" class="lesson-link-card">
+      <div class="lesson-num-badge">{{ lesson.order }}</div>
+      <div>
+        <div class="lesson-link-title">{{ lesson.title }}</div>
+        <div class="lesson-link-type">
+          {% if lesson.order <= 3 %}🟢 Cơ bản{% elif lesson.order <= 6 %}🟡 Trung bình{% else %}🔴 Nâng cao{% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

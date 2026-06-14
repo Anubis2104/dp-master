@@ -13,6 +13,7 @@
             <a href="/" class="logo"><span>DP</span> Master</a>
             <nav>
                 <a href="/">Thư viện Thuật toán</a>
+                <a href="{{ url_for('theory') }}">📖 Lý thuyết DP</a>
                 {% if not current_user.is_authenticated or current_user.role != 'admin' %}
                 <a href="/dashboard">Lộ trình học</a>
                 {% endif %}

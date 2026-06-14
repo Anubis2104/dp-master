@@ -160,19 +160,24 @@ with app.app_context():
         },
     ]
 
+    from seed_data import LESSON_THEORY_EXTENDED
+
     for data in lessons_data:
         lesson = Lesson.query.filter_by(slug=data['slug']).first()
         if not lesson:
             lesson = Lesson(**data)
+            lesson.theory_extended = LESSON_THEORY_EXTENDED.get(data['slug'], '')
             db.session.add(lesson)
         else:
-            # Cập nhật order và pass_percentage nếu chưa có
+            # Cập nhật các trường
             lesson.order = data['order']
             lesson.pass_percentage = data['pass_percentage']
             lesson.title = data['title']
             lesson.theory = data['theory']
+            lesson.theory_extended = LESSON_THEORY_EXTENDED.get(data['slug'], '')
     db.session.commit()
-    print("✅ Seeded lessons.")
+    print("✅ Seeded lessons với lý thuyết chi tiết.")
+
 
     # --- Seed Quiz Questions ---
     QUIZ_DATA = {

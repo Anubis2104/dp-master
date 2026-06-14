@@ -34,7 +34,8 @@ class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(50), unique=True, nullable=False)
     title = db.Column(db.String(100), nullable=False)
-    theory = db.Column(db.Text, nullable=True)
+    theory = db.Column(db.Text, nullable=True)          # Mô tả ngắn
+    theory_extended = db.Column(db.Text, nullable=True) # Lý thuyết chi tiết (HTML)
     python_code = db.Column(db.Text, nullable=True)
     # Thứ tự bài học (1-9)
     order = db.Column(db.Integer, default=0, nullable=False)
@@ -43,6 +44,7 @@ class Lesson(db.Model):
     # Quan hệ
     quiz_questions = db.relationship('QuizQuestion', backref='lesson', lazy=True,
                                      order_by='QuizQuestion.order')
+
 
 
 class Progress(db.Model):

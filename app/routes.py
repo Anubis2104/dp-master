@@ -90,6 +90,11 @@ def init_routes(app):
         return render_template('index.html', lessons=lessons,
                                unlock_map=unlock_map, quiz_passed_map=quiz_passed_map)
 
+    @app.route('/theory')
+    def theory():
+        lessons = Lesson.query.order_by(Lesson.order).all()
+        return render_template('theory.html', lessons=lessons)
+
     @app.route('/dashboard')
     def dashboard():
         lessons = Lesson.query.order_by(Lesson.order).all()

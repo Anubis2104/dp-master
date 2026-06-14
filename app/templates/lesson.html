@@ -1,18 +1,88 @@
 {% extends 'base.html' %}
 {% block title %}{{ lesson.title }} - DP Master{% endblock %}
 {% block content %}
+<style>
+/* ===== THEORY EXTENDED STYLES ===== */
+.theory-section { margin-bottom: 1.75rem; }
+.theory-section h3 { font-size: 1.1rem; color: #1e1b4b; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.theory-section p { color: #4b5563; line-height: 1.8; margin-bottom: 0.75rem; }
+.theory-section ul, .theory-section ol { color: #4b5563; line-height: 1.9; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.theory-section li { margin-bottom: 0.25rem; }
+.theory-example { background: #fef9c3; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 1rem 1.25rem; margin: 0.75rem 0; font-size: 0.9rem; color: #78350f; line-height: 1.7; }
+.formula-box { background: linear-gradient(135deg, #1e293b, #0f172a); color: #a5f3fc; border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Consolas', monospace; font-size: 0.9rem; line-height: 1.8; margin: 0.75rem 0; border-left: 4px solid #667eea; }
+.dp-table-wrap { overflow-x: auto; margin: 0.75rem 0; }
+.dp-table { border-collapse: collapse; min-width: 100%; font-size: 0.85rem; }
+.dp-table th, .dp-table td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: center; white-space: nowrap; }
+.dp-table th { background: #f8fafc; font-weight: 700; color: #374151; }
+.dp-table td { color: #1f2937; }
+.dp-highlight { background: #d1fae5; color: #065f46; font-weight: 700; }
+.complexity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
+.complexity-item { background: #f5f3ff; border: 1px solid #e0e7ff; border-radius: 8px; padding: 0.75rem 1rem; }
+.complexity-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #6366f1; display: block; margin-bottom: 0.2rem; }
+.complexity-value { font-family: 'Consolas', monospace; font-size: 0.9rem; color: #1e1b4b; font-weight: 600; }
+.theory-steps { list-style: decimal; padding-left: 1.5rem; }
+.theory-steps li { color: #374151; line-height: 1.8; margin-bottom: 0.5rem; }
+.theory-steps li strong { color: #1e1b4b; }
 
-{# ============ PHẦN 1: GIỚI THIỆU ============ #}
+/* Tab styles */
+.theory-tabs { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb; margin-bottom: 1.5rem; overflow-x: auto; }
+.theory-tab { padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
+.theory-tab.active { color: #667eea; border-bottom-color: #667eea; }
+.theory-tab-content { display: none; }
+.theory-tab-content.active { display: block; }
+.back-to-theory { display: inline-flex; align-items: center; gap: 0.4rem; color: #667eea; text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+.back-to-theory:hover { text-decoration: underline; }
+</style>
+
+{# ============ PHẦN 1: LÝ THUYẾT ============ #}
 <div class="card">
     <div class="mb-4">
         <div class="section-badge">
             <span class="section-number">1</span>
-            <span class="section-label">Giới thiệu</span>
+            <span class="section-label">Lý thuyết</span>
         </div>
-        <h2>{{ lesson.title }}</h2>
-        <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-top: 0.5rem;">{{ lesson.theory }}</p>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+            <h2 style="margin:0;">{{ lesson.title }}</h2>
+            <a href="{{ url_for('theory') }}" class="back-to-theory">
+                📖 Lý thuyết QHĐ tổng quan →
+            </a>
+        </div>
+        <p style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 1.25rem;">{{ lesson.theory }}</p>
     </div>
+
+    {% if lesson.theory_extended %}
+    <div class="theory-tabs">
+        <button class="theory-tab active" onclick="switchTab('overview', this)">📌 Phân tích bài toán</button>
+        <button class="theory-tab" onclick="switchTab('extended', this)">🔍 Lý thuyết chi tiết</button>
+    </div>
+
+    <div id="tab-overview" class="theory-tab-content active">
+        <p style="color:#6b7280; font-style:italic; font-size:0.9rem;">
+            Bài toán <strong>{{ lesson.title }}</strong> thuộc nhóm
+            {% if lesson.order <= 3 %}bài toán QHĐ 1 chiều và 2 chiều cơ bản.{% elif lesson.order <= 6 %}bài toán duyệt đồ thị ứng dụng QHĐ.{% else %}bài toán QHĐ nâng cao.{% endif %}
+            Nhấn tab <strong>"Lý thuyết chi tiết"</strong> để xem phân tích đầy đủ với công thức, bảng DP và ví dụ minh họa.
+        </p>
+        <div style="margin-top:1rem; padding:1.25rem; background:#f8fafc; border-radius:10px; border:1px solid #e5e7eb;">
+            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#9ca3af; margin-bottom:0.5rem;">Bài toán số {{ lesson.order }}/9</div>
+            <div style="font-size:0.9rem; color:#374151; line-height:1.7;">{{ lesson.theory[:300] }}{% if lesson.theory|length > 300 %}...{% endif %}</div>
+        </div>
+    </div>
+
+    <div id="tab-extended" class="theory-tab-content">
+        {{ lesson.theory_extended|safe }}
+    </div>
+
+    <script>
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.theory-tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.theory-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+    </script>
+    {% endif %}
 </div>
+
 
 {# ============ PHẦN 2: CODE MẪU ============ #}
 {% if lesson.python_code %}
